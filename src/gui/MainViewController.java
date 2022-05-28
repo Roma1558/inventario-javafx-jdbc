@@ -19,7 +19,7 @@ import javafx.scene.layout.VBox;
 public class MainViewController implements Initializable {
 
 	@FXML
-	private MenuItem menuItemVendedor;
+	private MenuItem menuItemFuncionario;
 	
 	@FXML
 	private MenuItem menuItemDepartamento;
@@ -28,13 +28,13 @@ public class MainViewController implements Initializable {
 	private MenuItem menuItemSobre;
 	
 	@FXML
-	public void onMenuItemVendedorAction() {
-		System.out.println("onMenuItemVendedorAction");
+	public void onMenuItemFuncionarioAction() {
+		System.out.println("onMenuItemFuncionarioAction");
 	}
 	
 	@FXML
 	public void onMenuItemDepartamentorAction() {
-		System.out.println("onMenuItemDepartamentorAction");
+		loadView("/gui/DepartamentList.fxml");
 	}
 	
 	@FXML
