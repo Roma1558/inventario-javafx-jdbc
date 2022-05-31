@@ -4,17 +4,22 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import gui.util.Constraints;
+import gui.util.Utils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Department;
+import model.services.DepartmentService;
 
 
 public class DepartmentFormController implements Initializable {
 	
 	private Department entity;
+	
+	private DepartmentService service;
 
 	@FXML
 	private TextField txtID;
@@ -35,14 +40,29 @@ public class DepartmentFormController implements Initializable {
 		this.entity = entity;
 	}
 	
-	@FXML
-	public void onBtSaveAction() {
-		System.out.println("Botão Salvar OK");
+	public void setDepartmentService(DepartmentService service) {
+		this.service = service;
 	}
 	
 	@FXML
-	public void onBtCancelAction() {
-		System.out.println("Botão Cancelar OK");
+	public void onBtSaveAction(ActionEvent event) {
+		entity = getFormData();
+		service.saveOrUpdate(entity);
+		Utils.currentStage(event).close();
+	}
+	
+	private Department getFormData() {
+		Department obj = new Department();
+		
+		obj.setId(Utils.tryParseToInt(txtID.getText()));
+		obj.setNome(txtNome.getText());
+		
+		return obj;
+	}
+
+	@FXML
+	public void onBtCancelAction(ActionEvent event) {
+		Utils.currentStage(event).close();
 	}
 	
 	@Override
