@@ -3,18 +3,24 @@ package gui;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
+import db.DbException;
 import gui.listeners.DataChangeListener;
+import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Department;
+import model.exceptions.ValidationException;
 import model.services.DepartmentService;
 
 
@@ -55,10 +61,24 @@ public class DepartmentFormController implements Initializable {
 	
 	@FXML
 	public void onBtSaveAction(ActionEvent event) {
-		entity = getFormData();
-		service.saveOrUpdate(entity);
-		notifyDataChangeListeners();
-		Utils.currentStage(event).close();
+		if (entity == null) {
+			throw new IllegalStateException("Entidade nula");
+		}
+		if (service == null) {
+			throw new IllegalStateException("Serviço nulo");
+		}
+		try {
+			entity = getFormData();
+			service.saveOrUpdate(entity);
+			notifyDataChangeListeners();
+			Utils.currentStage(event).close();
+		}
+		catch (ValidationException e) {
+			setErrorMessages(e.getErrors());
+		}
+		catch (DbException e) {
+			Alerts.showAlert("Erro ao salvar o objeto", null, e.getMessage(), AlertType.ERROR);
+		}
 	}
 	
 	private void notifyDataChangeListeners() {
@@ -70,8 +90,18 @@ public class DepartmentFormController implements Initializable {
 	private Department getFormData() {
 		Department obj = new Department();
 		
+		ValidationException exception = new ValidationException("Validation error");
+		
 		obj.setId(Utils.tryParseToInt(txtID.getText()));
+		
+		if (txtNome.getText() == null || txtNome.getText().trim().equals("")) {
+			exception.addError("nome", "O campo não pode ser vazio");
+		}
 		obj.setNome(txtNome.getText());
+		
+		if(exception.getErrors().size() > 0) {
+			throw exception;
+		}
 		
 		return obj;
 	}
@@ -94,5 +124,13 @@ public class DepartmentFormController implements Initializable {
 	public void updateFormData() {
 		txtID.setText(String.valueOf(entity.getId()));
 		txtNome.setText(entity.getNome());
+	}
+	
+	private void setErrorMessages(Map<String, String> errors) {
+		Set<String> fields = errors.keySet();
+		
+		if(fields.contains("nome")) {
+			labelErrorNome.setText(errors.get("nome"));
+		}
 	}
 }
