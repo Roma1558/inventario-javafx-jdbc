@@ -1,5 +1,6 @@
 package gui;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
@@ -16,14 +17,19 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Funcionario;
 import model.services.FuncionarioService;
@@ -49,7 +55,6 @@ public class FuncionarioListController implements Initializable, DataChangeListe
 	
 	@FXML
 	private TableColumn<Funcionario, Double> tableColumnBaseSalary;
-	
 	
 	@FXML
 	private TableColumn<Funcionario, Funcionario> tableColumnEDIT;
@@ -104,7 +109,7 @@ public class FuncionarioListController implements Initializable, DataChangeListe
 	}
 
 	private void createDialogForm(Funcionario obj, String absoluteName, Stage parentStage) {
-		/*try {
+		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			Pane pane = loader.load();
 
@@ -115,7 +120,7 @@ public class FuncionarioListController implements Initializable, DataChangeListe
 			controller.updateFormData();
 
 			Stage dialogStage = new Stage();
-			dialogStage.setTitle("Novo Departamento");
+			dialogStage.setTitle("Novo Funcionário");
 			dialogStage.setScene(new Scene(pane));
 			dialogStage.setResizable(false);
 			dialogStage.initOwner(parentStage);
@@ -123,7 +128,7 @@ public class FuncionarioListController implements Initializable, DataChangeListe
 			dialogStage.showAndWait();
 		} catch (IOException e) {
 			Alerts.showAlert("IO Exception", "Erro ao carregar a view", e.getMessage(), AlertType.ERROR);
-		}*/
+		}
 	}
 
 	@Override
