@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
@@ -21,8 +22,14 @@
           <RowConstraints maxHeight="22.0" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label text="ID" />
-            <Label text="Nome" GridPane.rowIndex="1" />
+            <Label text="ID">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font></Label>
+            <Label text="Nome" GridPane.rowIndex="1">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font></Label>
             <TextField fx:id="txtID" editable="false" GridPane.columnIndex="1">
                <GridPane.margin>
                   <Insets />
@@ -40,8 +47,14 @@
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
                   </Button>
-                  <Button fx:id="btCancelar" mnemonicParsing="false" onAction="#onBtCancelAction" text="Cancelar" />
+                  <Button fx:id="btCancelar" mnemonicParsing="false" onAction="#onBtCancelAction" text="Cancelar">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font></Button>
                </children>
                <GridPane.margin>
                   <Insets />
