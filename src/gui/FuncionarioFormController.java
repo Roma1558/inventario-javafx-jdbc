@@ -15,73 +15,87 @@ import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.util.Callback;
+import model.entities.Department;
 import model.entities.Funcionario;
 import model.exceptions.ValidationException;
+import model.services.DepartmentService;
 import model.services.FuncionarioService;
 
-
 public class FuncionarioFormController implements Initializable {
-	
+
 	private Funcionario entity;
-	
+
 	private FuncionarioService service;
-	
+
+	private DepartmentService departmentService;
+
 	private List<DataChangeListener> dataChangeListerners = new ArrayList<>();
 
 	@FXML
 	private TextField txtID;
-	
+
 	@FXML
 	private TextField txtNome;
-	
+
 	@FXML
 	private TextField txtEmail;
-	
+
 	@FXML
 	private DatePicker dpBirthDate;
-	
+
 	@FXML
 	private TextField txtBaseSalary;
-	
+
+	@FXML
+	private ComboBox<Department> comboBoxDepartment;
+
 	@FXML
 	private Label labelErrorNome;
-	
+
 	@FXML
 	private Label labelErrorEmail;
-	
+
 	@FXML
 	private Label labelErrorBirthDate;
-	
+
 	@FXML
 	private Label labelErrorBaseSalary;
-	
-	
+
 	@FXML
 	private Button btSalvar;
-	
+
 	@FXML
 	private Button btCancelar;
-	
-	public void setFuncionario (Funcionario entity) {
+
+	private ObservableList<Department> obsList;
+
+	public void setFuncionario(Funcionario entity) {
 		this.entity = entity;
 	}
-	
-	public void setFuncionarioService(FuncionarioService service) {
+
+	public void setServices(FuncionarioService service, DepartmentService departmentService) {
 		this.service = service;
+		this.departmentService = departmentService;
 	}
-	
+
 	public void subcribeDataChangeListener(DataChangeListener listener) {
 		dataChangeListerners.add(listener);
 	}
-	
+
 	@FXML
 	public void onBtSaveAction(ActionEvent event) {
 		if (entity == null) {
@@ -95,37 +109,35 @@ public class FuncionarioFormController implements Initializable {
 			service.saveOrUpdate(entity);
 			notifyDataChangeListeners();
 			Utils.currentStage(event).close();
-		}
-		catch (ValidationException e) {
+		} catch (ValidationException e) {
 			setErrorMessages(e.getErrors());
-		}
-		catch (DbException e) {
+		} catch (DbException e) {
 			Alerts.showAlert("Erro ao salvar o objeto", null, e.getMessage(), AlertType.ERROR);
 		}
 	}
-	
+
 	private void notifyDataChangeListeners() {
-		for(DataChangeListener listener : dataChangeListerners) {
+		for (DataChangeListener listener : dataChangeListerners) {
 			listener.onDataChanged();
 		}
 	}
 
 	private Funcionario getFormData() {
 		Funcionario obj = new Funcionario();
-		
+
 		ValidationException exception = new ValidationException("Validation error");
-		
+
 		obj.setId(Utils.tryParseToInt(txtID.getText()));
-		
+
 		if (txtNome.getText() == null || txtNome.getText().trim().equals("")) {
 			exception.addError("nome", "O campo não pode ser vazio");
 		}
 		obj.setNome(txtNome.getText());
-		
-		if(exception.getErrors().size() > 0) {
+
+		if (exception.getErrors().size() > 0) {
 			throw exception;
 		}
-		
+
 		return obj;
 	}
 
@@ -133,9 +145,9 @@ public class FuncionarioFormController implements Initializable {
 	public void onBtCancelAction(ActionEvent event) {
 		Utils.currentStage(event).close();
 	}
-	
+
 	@Override
-	public void initialize(URL url, ResourceBundle rb) {	
+	public void initialize(URL url, ResourceBundle rb) {
 		initializeNodes();
 	}
 
@@ -145,7 +157,8 @@ public class FuncionarioFormController implements Initializable {
 		Constraints.setTextFieldDouble(txtBaseSalary);
 		Constraints.setTextFieldMaxLength(txtEmail, 60);
 		Utils.formatDatePicker(dpBirthDate, "dd/MM/yyyy");
-		
+
+		initializeComboBoxDepartment();
 	}
 
 	public void updateFormData() {
@@ -154,16 +167,40 @@ public class FuncionarioFormController implements Initializable {
 		txtEmail.setText(entity.getEmail());
 		Locale.setDefault(Locale.US);
 		txtBaseSalary.setText(String.format("%.2f", entity.getBaseSalary()));
-		if(entity.getBirthDate() != null) {
+		if (entity.getBirthDate() != null) {
 			dpBirthDate.setValue(LocalDate.ofInstant(entity.getBirthDate().toInstant(), ZoneId.systemDefault()));
 		}
+		if (entity.getDepartment() == null) {
+			comboBoxDepartment.getSelectionModel().selectFirst();
+		}
+		else {
+			comboBoxDepartment.setValue(entity.getDepartment());
+		}
 	}
-	
+
+	public void loadAssociatedObjects() {
+		List<Department> list = departmentService.findAll();
+		obsList = FXCollections.observableArrayList(list);
+		comboBoxDepartment.setItems(obsList);
+	}
+
 	private void setErrorMessages(Map<String, String> errors) {
 		Set<String> fields = errors.keySet();
-		
-		if(fields.contains("nome")) {
+
+		if (fields.contains("nome")) {
 			labelErrorNome.setText(errors.get("nome"));
 		}
+	}
+
+	private void initializeComboBoxDepartment() {
+		Callback<ListView<Department>, ListCell<Department>> factory = lv -> new ListCell<Department>() {
+			@Override
+			protected void updateItem(Department item, boolean empty) {
+				super.updateItem(item, empty);
+				setText(empty ? "" : item.getNome());
+			}
+		};
+		comboBoxDepartment.setCellFactory(factory);
+		comboBoxDepartment.setButtonCell(factory.call(null));
 	}
 }

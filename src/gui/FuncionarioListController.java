@@ -32,6 +32,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Funcionario;
+import model.services.DepartmentService;
 import model.services.FuncionarioService;
 
 public class FuncionarioListController implements Initializable, DataChangeListener {
@@ -115,10 +116,10 @@ public class FuncionarioListController implements Initializable, DataChangeListe
 
 			FuncionarioFormController controller = loader.getController();
 			controller.setFuncionario(obj);
-			controller.setFuncionarioService(new FuncionarioService());
+			controller.setServices(new FuncionarioService(), new DepartmentService());
 			controller.subcribeDataChangeListener(this);
 			controller.updateFormData();
-
+			controller.loadAssociatedObjects();
 			Stage dialogStage = new Stage();
 			dialogStage.setTitle("Novo Funcionário");
 			dialogStage.setScene(new Scene(pane));
@@ -127,6 +128,7 @@ public class FuncionarioListController implements Initializable, DataChangeListe
 			dialogStage.initModality(Modality.WINDOW_MODAL);
 			dialogStage.showAndWait();
 		} catch (IOException e) {
+			e.printStackTrace();
 			Alerts.showAlert("IO Exception", "Erro ao carregar a view", e.getMessage(), AlertType.ERROR);
 		}
 	}
