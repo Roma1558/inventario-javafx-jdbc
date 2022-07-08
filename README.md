@@ -40,3 +40,4 @@ application.Main
 
 * Romualdo Júnior Freitas Leite
 * Creiverson Vieira de Magalhães
+* Elanne Maria Rocha dos Santos
