@@ -39,3 +39,4 @@ application.Main
 ## ✒️ Autores
 
 * Romualdo Júnior Freitas Leite
+* Creiverson Vieira de Magalhães
